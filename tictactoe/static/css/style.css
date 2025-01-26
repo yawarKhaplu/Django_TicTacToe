@@ -1,0 +1,103 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.container{
+    border: 2px solid red;
+    width: 100vw;
+    max-width: 1000px;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+#turn{
+    font-size: 2.3rem;
+    color: green;
+    /* line-height: 2rem; */
+}
+.mainBox{
+    border: 2px solid green;
+    width: 360px;
+    height: 360px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    box-shadow: 5px 6px gray;
+    position: relative;
+}
+.box{
+    width: 100px;
+    height: 100px;
+    background-color: rgba(0, 0, 255, 0.8);
+    margin: 10px;
+    font-weight: 900;
+    font-size: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.box:active{
+    box-shadow: 2px 2px gray;
+    transform: scale(1.09);
+}
+.turn h2{
+    display: block;
+    border: 2px double black;
+    margin: 30px 0;
+    padding: 0 40px;
+    border-radius: 5px;
+    box-shadow: 1px 2px gray;
+}
+.result{
+    position: absolute;
+    border-radius: 5px;
+    width: 340px;
+    height: 120px;
+    /* top: 50%;*/
+    /* right: 50%; */
+    right: 8px;
+    /* left: ;  */
+    background-color: rgba(255, 255, 255, 0.9);
+    opacity: 0.9;
+    border: 2px solid blue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(255, 255, 255);
+    flex-direction: column;
+    display: none;
+}
+
+button{
+    color: white;
+    background-color: blue;
+    width: auto;
+    height: 40px;
+    padding: 0px 10px;
+    border-radius: 5px;
+    height: 1.5rem;
+    font-size: larger;
+    margin: 10px 0;
+    /* box-shadow: 5px 5px; */
+}
+.result h2{
+    color: blue;
+}
+.result h2 b{
+    color: red;
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-shadow: 1px 2px;
+    /* word-spacing: 1px; */
+    line-height: 3rem;
+}
+button:hover{
+    cursor: pointer;
+    transform: scale3d(1.05,1.01,3);
+    transition: all ease-in-out 300ms;
+    opacity: 0.8;
+}
