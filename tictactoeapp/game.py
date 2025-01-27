@@ -35,6 +35,6 @@ def change_turn(TURN):
         x = "O"
     print(x)
     return x
-
-print(check_draw())
-print(check_win())
+if __name__ == "__main__":
+    print(check_draw())
+    print(check_win())
