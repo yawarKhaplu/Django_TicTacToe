@@ -157,6 +157,7 @@
     <!-- <script src="app.js"></script> -->
     <script>
         // document.getElementById("one").innerText = "X";
+        turn_msg = document.getElementById("turn");
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const socket = new WebSocket(protocol + window.location.host + '/ws/game/');
         // connect to the server
@@ -174,6 +175,8 @@
         socket.onmessage = function (event) {
             const data = JSON.parse(event.data);
             console.log(data);
+            turn_msg.innerText = data.turn;
+
             if (data.win !== false && data.win !== undefined) {
                 setTimeout(() => {
                     alert("Congratulations " + data.win);  // Show the win message after 2 seconds
@@ -184,7 +187,7 @@
                     alert("It's a draw");  // Show the draw message after 2 seconds
                 }, 100);
             }
-            if (data.turn != undefined) {
+            if (data.id !== undefined) {
                 console.log(data.turn);
                 document.getElementById(data.id).innerText = data.turn;
             }
