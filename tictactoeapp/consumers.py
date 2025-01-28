@@ -16,20 +16,30 @@ class MyConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         # Accept the WebSocket connection
-        player_id = uuid.uuid4()
+        self.player_id = uuid.uuid4()
+        MyConsumer.players.append(self.player_id)
         await self.accept()
+        if self.players[0] == self.player_id:
+            # First player gets 'X' turn
+            self.turn = "X"
+        elif self.players[1] == self.player_id:
+            self.turn = "O"
+        else:
+            self.turn = "Spectrator"
+            await self.send(text_data=json.dumps({'player':self.turn}))
         await self.send(text_data=json.dumps({
-            'message': 'Connecccted',
-            "turn": MyConsumer.TURN,
+            'message': 'Connected',
+            'turn': self.turn,
+            # "turn": MyConsumer.TURN,
         }))
-        MyConsumer.players.append({"id": player_id, "ws": self})
         if len(MyConsumer.players) == 2:
-            MyConsumer.game_state["current_turn"] = MyConsumer.players[0]["id"]
+            MyConsumer.game_state["current_turn"] = MyConsumer.players[0]
         await self.channel_layer.group_add(f"active_game", self.channel_name)
 
 
     async def disconnect(self, close_code):
         # Handle WebSocket disconnection
+        MyConsumer.players.remove(self.player_id)
         await self.channel_layer.group_discard(f"active_game", self.channel_name)
         pass
 
@@ -40,7 +50,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         if 'clicked' in data:
             which_box = data["clicked"]
             MyConsumer.TURN = "O" if MyConsumer.TURN == "X" else "X"
-            update_dashboard(self.TURN, boxvalues[which_box])
+            update_dashboard(self.turn, boxvalues[which_box])
             draw = check_draw()
             win = check_win()
             # Send a message to the group
@@ -49,7 +59,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'game.message',
                     'message': "Game state updated",
-                    'turn': MyConsumer.TURN,
+                    'turn': self.turn,
                     'id': which_box,
                     'win': win,
                     'draw': draw,
@@ -73,8 +83,8 @@ class MyConsumer(AsyncWebsocketConsumer):
             'win': event['win'],
         }))
     async def clear_all_boxvalues(self):
-        for player in MyConsumer.players:
-            await player['ws'].send(text_data=json.dumps({
-                'clear': True,
-                "turn": MyConsumer.TURN
-            }))
+        await self.channel_layer.group_send(text_data=json.dumps(
+            "active_game",{
+            'clear': True,
+            "turn": self.turn,
+        }))
