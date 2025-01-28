@@ -37,23 +37,30 @@ class MyConsumer(AsyncWebsocketConsumer):
         # Handle received WebSocket messages
         data = json.loads(text_data)
         # print(data)
-        which_box = data["clicked"]
-        MyConsumer.TURN = "O" if MyConsumer.TURN == "X" else "X"
-        update_dashboard(self.TURN, boxvalues[which_box])
-        draw = check_draw()
-        win = check_win()
-        # Send a message to the group
-        await self.channel_layer.group_send(
-            f"active_game",
-            {
-                'type': 'game.message',
-                'message': "Game state updated",
-                'turn': MyConsumer.TURN,
-                'id': which_box,
-                'win': win,
-                'draw': draw,
-            }
-        )
+        if 'clicked' in data:
+            which_box = data["clicked"]
+            MyConsumer.TURN = "O" if MyConsumer.TURN == "X" else "X"
+            update_dashboard(self.TURN, boxvalues[which_box])
+            draw = check_draw()
+            win = check_win()
+            # Send a message to the group
+            await self.channel_layer.group_send(
+                f"active_game",
+                {
+                    'type': 'game.message',
+                    'message': "Game state updated",
+                    'turn': MyConsumer.TURN,
+                    'id': which_box,
+                    'win': win,
+                    'draw': draw,
+                }
+            )
+        elif 'reset' in data:
+            new_game()
+            await self.clear_all_boxvalues()
+        else:
+            print("Unknown message")
+            print(data)
 
     async def game_message(self, event):
         # print(f"Game status: {message}, win: {win}, draw: {draw}")
@@ -65,3 +72,9 @@ class MyConsumer(AsyncWebsocketConsumer):
             'draw': event['draw'],
             'win': event['win'],
         }))
+    async def clear_all_boxvalues(self):
+        for player in MyConsumer.players:
+            await player['ws'].send(text_data=json.dumps({
+                'clear': True,
+                "turn": MyConsumer.TURN
+            }))

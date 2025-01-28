@@ -35,6 +35,9 @@ def change_turn(TURN):
         x = "O"
     print(x)
     return x
+def new_game():
+    for i in range(9):
+        dashbord[i] = False
 if __name__ == "__main__":
     print(check_draw())
     print(check_win())

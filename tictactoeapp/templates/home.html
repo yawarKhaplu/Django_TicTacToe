@@ -148,7 +148,7 @@
             </div>
             <div class="result">
                 <h2 id="none"><b id="result"></b></h2>
-                <button onclick="Reload()">Play Again</button>
+                <button onclick="reset()">Play Again</button>
             </div>
         </div>
 
@@ -160,6 +160,14 @@
         turn_msg = document.getElementById("turn");
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const socket = new WebSocket(protocol + window.location.host + '/ws/game/');
+
+        // reset function
+        function gameOver() {
+            socket.send(
+                JSON.stringify({ reset: true })
+            )
+        }
+
         // connect to the server
         // onclick lisner to button to check 
         buttons = document.querySelectorAll('.box')
@@ -190,6 +198,12 @@
             if (data.id !== undefined) {
                 console.log(data.turn);
                 document.getElementById(data.id).innerText = data.turn;
+            }
+            if (data.clear === true) {
+                buttons.forEach(function (button) {
+                    button.innerText = "";
+                    button.disabled = false;
+                });
             }
         };
 
