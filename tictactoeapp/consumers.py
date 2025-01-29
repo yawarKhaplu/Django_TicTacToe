@@ -58,7 +58,8 @@ class MyConsumer(AsyncWebsocketConsumer):
         # print(data)
         if 'clicked' in data:
             which_box = data["clicked"]
-            update_dashboard(self.turn, boxvalues[which_box])
+            if self.player == "X" or self.player == "O":
+                update_dashboard(self.turn, boxvalues[which_box])
             draw = check_draw()
             win = check_win()
             # Send a message to the group
