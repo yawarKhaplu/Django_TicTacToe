@@ -186,6 +186,14 @@
             const data = JSON.parse(event.data);
             console.log(data);
             turn_msg.innerText = data.turn;
+            if( data.player == 'Spectrator'){
+                turn_msg.innerText = 'Spectator';
+                mainBox.style.disabled = 'disabled';
+
+                // buttons.forEach(function (button) {
+                //     button.disabled = true;
+                // });
+            }
 
             if (data.win !== false && data.win !== undefined) {
                 setTimeout(() => {
@@ -200,7 +208,7 @@
             if (data.id !== undefined) {
                 console.log(data.turn);
                 document.getElementById(data.id).innerText = data.turn;
-            }
+            }els
             if (data.clear === true) {
                 buttons.forEach(function (button) {
                     button.innerText = "";
