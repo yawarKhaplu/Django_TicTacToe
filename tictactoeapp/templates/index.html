@@ -1,48 +1,202 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Calculator</title>
-</head>
-
-<body>
-    <textarea name="ta" id="results" cols="30" rows="10">
-
-    </textarea><br>
-    Enter the expression: <input type="text" id="exp">
-    <input type="button" id="submit" value="Get Results">
-    <script>
-        const socket = new WebSocket('ws://localhost:8000/ws/livec/');
-        socket.onmessage = (e) => {
-            result = JSON.parse(e.data).result;
-            document.getElementById("results").value += "Server: " + result + "\n";
+    <title>Modern Glassmorphism Modal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        socket.onclose = (e) => {
-            console.log("Socket closed!");
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
         }
 
-        document.querySelector('#exp').onkeyup = function (e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#submit ').click();
+        .trigger-btn {
+            padding: 1.5rem 3rem;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .trigger-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: #2d3436;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #2d3436;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            line-height: 1.6;
+            color: #636e72;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 1.5rem;
             }
-        };
-
-        document.querySelector("#submit").onclick = (e) => {
-            inputfield = document.querySelector("#exp")
-            exp = inputfield.value
-            socket.send(JSON.stringify(
-                {
-                    expression: exp
-                }
-            ))
-            document.querySelector("#results").value += "You: " + exp + "\n";
-            inputfield.value = "";
+            
+            .modal-title {
+                font-size: 1.4rem;
+            }
         }
 
+        /* Neomorphic effect */
+        .modal-content {
+            box-shadow: 20px 20px 60px #d1d1d1,
+                       -20px -20px 60px #ffffff;
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .loading .modal-content {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <button class="trigger-btn">Open Modal</button>
+
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Welcome! 👋</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Discover amazing content and exclusive features. Join our community today!</p>
+                <p>✨ Premium access<br>📬 Weekly updates<br>🎁 Special offers</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const triggerBtn = document.querySelector('.trigger-btn');
+        const modalOverlay = document.querySelector('.modal-overlay');
+        const closeBtn = document.querySelector('.close-btn');
+        let autoCloseTimeout;
+
+        // Open modal
+        triggerBtn.addEventListener('click', () => {
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            startAutoClose();
+        });
+
+        // Close modal
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            cancelAutoClose();
+        }
+
+        // Close handlers
+        closeBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        // ESC key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Auto-close after 5 seconds
+        function startAutoClose() {
+            autoCloseTimeout = setTimeout(closeModal, 5000);
+        }
+
+        function cancelAutoClose() {
+            clearTimeout(autoCloseTimeout);
+        }
+
+        // Cancel auto-close on interaction
+        modalOverlay.addEventListener('mousemove', cancelAutoClose);
+        modalOverlay.addEventListener('touchstart', cancelAutoClose);
     </script>
 </body>
-
 </html>

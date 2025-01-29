@@ -8,18 +8,16 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 """
 import os
 from django.core.asgi import get_asgi_application
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-import tictactoeapp.routing  # Replace `your_app` with the name of your app
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tictactoe.settings')
 
+from channels.routing import ProtocolTypeRouter, URLRouter
+from tictactoeapp import routing  # Make sure this comes AFTER Django initialization
+
+django_asgi_app = get_asgi_application()
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(
-            tictactoeapp.routing.websocket_urlpatterns
-        )
+    "http": django_asgi_app,
+    "websocket": URLRouter(
+        routing.websocket_urlpatterns
     ),
 })
-

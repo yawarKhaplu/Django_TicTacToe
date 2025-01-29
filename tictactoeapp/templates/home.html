@@ -11,9 +11,17 @@
             margin: 0;
             padding: 0;
         }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
 
         .container {
-            border: 2px solid red;
+            /* border: 2px solid red; */
             width: 100vw;
             max-width: 1000px;
             height: 600px;
@@ -54,11 +62,7 @@
             cursor: pointer;
         }
 
-        .box:active {
-            box-shadow: 2px 2px gray;
-            transform: scale(1.09);
-        }
-
+        
         .turn h2 {
             display: block;
             border: 2px double black;
@@ -120,12 +124,125 @@
             transition: all ease-in-out 300ms;
             opacity: 0.8;
         }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 1;
+        }
+        .box:active {
+            box-shadow: 2px 2px gray;
+            transform: scale(1.09);
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: #2d3436;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #2d3436;
+            transition: transform 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            line-height: 1.6;
+            color: #636e72;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 1.5rem;
+            }
+            
+            .modal-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Neomorphic effect */
+        .modal-content {
+            box-shadow: 20px 20px 60px #d1d1d1,
+                       -20px -20px 60px #ffffff;
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .loading .modal-content {
+            animation: pulse 1.5s infinite;
+        }
     </style>
 
 </head>
 
 <body>
     <!-- <h1>Tic Tac Toe</h1> -->
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Hi! 👋</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>73% of losers claim they 'let you win' - don't be that person. 😉</p>
+                <!-- <p>Discover amazing content and exclusive features. Join our community today!</p>
+                <p>✨ Premium access<br>📬 Weekly updates<br>🎁 Special offers</p> -->
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="turn">
             <h2><b id="turn">X</b> Turn</h2>
@@ -161,6 +278,12 @@
         const mainBox = document.getElementById("mainBox");
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         const socket = new WebSocket(protocol + window.location.host + '/ws/game/');
+        const triggerBtn = document.querySelector('.trigger-btn');
+        const modalOverlay = document.querySelector('.modal-overlay');
+        const closeBtn = document.querySelector('.close-btn');
+        let autoCloseTimeout;
+
+        
 
         // mainBox.style.disabled = 'disabled';
         // reset function
@@ -216,6 +339,34 @@
                 });
             }
         };
+
+
+         // Close modal
+         function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            cancelAutoClose();
+        }
+
+        // Close handlers
+        closeBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        // Activate the modal-popup 
+        function active_modal() {
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        startAutoClose();
+        }
+        function startAutoClose() {
+            autoCloseTimeout = setTimeout(closeModal, 5000);
+        }
+
+        active_modal()
+        modalOverlay.addEventListener('mousemove', cancelAutoClose);
+        modalOverlay.addEventListener('touchstart', cancelAutoClose);
 
     </script>
 </body>

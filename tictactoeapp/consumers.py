@@ -2,8 +2,6 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .game import *
 import uuid
-
-
 boxvalues = {"one": 0, "two": 1, "three": 2, "four": 3, "five": 4, "six": 5, "seven": 6, "eight": 7, "nine": 8}
 
 class MyConsumer(AsyncWebsocketConsumer):
@@ -37,6 +35,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             self.player = "Spectrator"
             # await self.send(text_data=json.dumps({'player':self.turn}))
         await self.send(text_data=json.dumps({
+            # "first_message": random_message,
             'message': 'Connected',
             'turn': self.turn,
             "player":self.player
