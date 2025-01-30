@@ -233,11 +233,11 @@
     <div class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Hi! 👋</h2>
+                <h2 class="modal-title" id="status-msg">Hi! 👋</h2>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p>73% of losers claim they 'let you win' - don't be that person. 😉</p>
+                <p id="genral-message">73% of losers claim they 'let you win' - don't be that person. 😉</p>
                 <!-- <p>Discover amazing content and exclusive features. Join our community today!</p>
                 <p>✨ Premium access<br>📬 Weekly updates<br>🎁 Special offers</p> -->
             </div>
@@ -282,7 +282,8 @@
         const modalOverlay = document.querySelector('.modal-overlay');
         const closeBtn = document.querySelector('.close-btn');
         let autoCloseTimeout;
-
+        const status_message = document.getElementById("status-msg");
+        const genral_message = document.getElementById("genral-message");
         
 
         // mainBox.style.disabled = 'disabled';
@@ -309,6 +310,15 @@
             const data = JSON.parse(event.data);
             console.log(data);
             turn_msg.innerText = data.turn;
+            if(data.status === "waiting") {
+                console.log("waiting")
+                cancelAutoClose()
+                status_message.innerText = "Waiting for opponent...";
+            }if(data.status === "started"){
+                status_message.innerText="Player is Alredy There"
+                genral_message.innerText = "Game is About to Start Are you ready?"
+                startAutoClose()
+            }
             if( data.player == 'Spectrator'){
                 turn_msg.innerText = 'Spectator';
                 mainBox.style.disabled = 'disabled';
@@ -331,7 +341,7 @@
             if (data.id !== undefined) {
                 console.log(data.turn);
                 document.getElementById(data.id).innerText = data.turn;
-            }els
+            }
             if (data.clear === true) {
                 buttons.forEach(function (button) {
                     button.innerText = "";
@@ -364,9 +374,13 @@
             autoCloseTimeout = setTimeout(closeModal, 5000);
         }
 
+        function cancelAutoClose() {
+            clearTimeout(autoCloseTimeout);
+        }
+
         active_modal()
-        modalOverlay.addEventListener('mousemove', cancelAutoClose);
-        modalOverlay.addEventListener('touchstart', cancelAutoClose);
+        // modalOverlay.addEventListener('mousemove', cancelAutoClose);
+        // modalOverlay.addEventListener('touchstart', cancelAutoClose);
 
     </script>
 </body>
