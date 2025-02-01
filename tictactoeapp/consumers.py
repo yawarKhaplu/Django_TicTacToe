@@ -42,8 +42,8 @@ class MyConsumer(AsyncWebsocketConsumer):
                 {
                     "type": "game.start",
                     "status": "started",
-                    "message": "Both Player are connected!",
-                    "player_symbol": "O",
+                    "message": f"Welcome {self.player_symbol}",
+                    "player_symbol": self.player_symbol,
                     "player_symbols": {"X": "Player 1", "O": "Player 2"}
                 }
             )
@@ -59,11 +59,10 @@ class MyConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_add(self.room_name, self.channel_name)
             await self.accept()
             self.status = "waiting"
-            
             await self.send(text_data=json.dumps({
             "status": "waiting",
-            "message": "Waiting for opponent...",
-            "player_symbol": "X"
+            "message": f"Hi {self.player_symbol} Waiting for opponent...",
+            "player_symbol": self.player_symbol
         }))
         # await self.game_start(self.room_name)
         # Accept the WebSocket connection
@@ -79,10 +78,8 @@ class MyConsumer(AsyncWebsocketConsumer):
         if self.player_symbol == "X":
             # First player gets 'X' turn
             self.turn = "O"
-            self.player = "X"
         else:
             self.turn = "X"
-            self.player = "O"
         # else:
         #     self.turn = ""
         #     self.player = "Spectrator"
@@ -99,6 +96,16 @@ class MyConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Clean up if the player leaves before the game starts
+        await self.channel_layer.group_send(
+            self.room_name,
+            {
+                "type": "game.start",
+                "status": "disconnected",
+                "message": f"{self.player_symbol} Left the Game!",
+                "player_symbol": "O",
+                "player_symbols": {"X": "Player 1", "O": "Player 2"}
+            }
+        )
         if cache.get("waiting_room") == self.room_name:
             cache.delete("waiting_room")
         await self.channel_layer.group_discard(self.room_name, self.channel_name)
@@ -110,10 +117,12 @@ class MyConsumer(AsyncWebsocketConsumer):
         # print(data)
         if 'clicked' in data:
             which_box = data["clicked"]
-            if self.player == "X" or self.player == "O":
+            if self.player_symbol == "X" or self.player_symbol == "O":
                 update_dashboard(self.turn, boxvalues[which_box])
             draw = check_draw()
             win = check_win()
+            if win == "X won" or win == "O won":
+                new_game()
             # Send a message to the group
             for group in self.groups:
                 await self.channel_layer.group_send(
@@ -125,7 +134,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                     'id': which_box,
                     'win': win,
                     'draw': draw,
-                    "player": self.player,
+                    "player": self.player_symbol,
                 }
             )
             
@@ -157,10 +166,10 @@ class MyConsumer(AsyncWebsocketConsumer):
             "player": event['player'],
         }))
     async def clear_all_boxvalues(self):
-        await self.channel_layer.group_send(text_data=json.dumps(
-            "active_game",{
+        await self.channel_layer.group_send(
+            self.room_name,{
             'clear': True,
             "turn": self.turn,
-        }))
+        })
     async def wait_for_one_to_play(self):
         pass

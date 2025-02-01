@@ -313,25 +313,34 @@
             if(data.status === "waiting") {
                 console.log("waiting")
                 cancelAutoClose()
-                status_message.innerText = "Waiting for opponent...";
-            }if(data.status === "started"){
-                status_message.innerText="Player is There"
-                genral_message.innerText = "Game is About to Start Are you ready?"
+                status_message.innerText = data.message;
+            }else if(data.status === "started"){
+                status_message.innerText=data.message;
+                genral_message.innerText = "Both Players are connected!\nGame is About to Start Are you ready?"
                 startAutoClose()
+            }else if (data.status === "disconnected"){
+                console.log("Player is")
+                status_message.innerText = "Game Ended!";
+                genral_message.innerText = data.message;
+                active_modal();
+                cancelAutoClose();
             }
             if( data.player == 'Spectrator'){
                 turn_msg.innerText = 'Spectator';
                 mainBox.style.disabled = 'disabled';
-
                 // buttons.forEach(function (button) {
                 //     button.disabled = true;
                 // });
             }
 
             if (data.win !== false && data.win !== undefined) {
-                setTimeout(() => {
-                    alert("Congratulations " + data.win);  // Show the win message after 2 seconds
-                }, 100);
+                // setTimeout(() => {
+                //     alert("Congratulations " + data.win);  // Show the win message after 2 seconds
+                // }, 100);
+                status_message.innerText="Game Ended!";
+                genral_message.innerText = data.win + "The Game."
+                active_modal();
+                cancelAutoClose();
             }
             else if(data.draw !== false && data.draw !== undefined) {
                 setTimeout(() => {

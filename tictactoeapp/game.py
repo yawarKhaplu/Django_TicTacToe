@@ -26,6 +26,7 @@ def check_win():
 def check_draw():
     if False in dashbord: return False
     if check_win() != False: return False
+    new_game()
     return True
 def change_turn(TURN):
     # print(TURN)
