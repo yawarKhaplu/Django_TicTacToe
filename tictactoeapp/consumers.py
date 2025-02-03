@@ -36,9 +36,6 @@ class MyConsumer(AsyncWebsocketConsumer):
             # print("Room Name: " , self.room_name)
             await self.channel_layer.group_add(self.room_name, self.channel_name)
             await self.accept()
-            await self.send(text_data=json.dumps({
-                "player_symbol": self.player_symbol
-            }))
             cache.delete("waiting_room")
             await self.channel_layer.group_send(
                 self.room_name,

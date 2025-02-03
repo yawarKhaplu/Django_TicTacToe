@@ -224,6 +224,12 @@
         .loading .modal-content {
             animation: pulse 1.5s infinite;
         }
+        #yesbtn{
+            position: absolute;
+            right: 45px;
+            align-items: center;
+            text-align: center;
+        }
     </style>
 
 </head>
@@ -317,7 +323,6 @@
                 cancelAutoClose()
                 who.innerText = "O"
                 
-                who.innerText=player_symbol;
                 status_message.innerText = data.message;
             }else if(data.status === "started"){
                 if (who.innerText==="" || who.innerText === null){
@@ -325,7 +330,6 @@
                 }
                 status_message.innerText=data.message;
                 genral_message.innerText = "Both Players are connected!\nGame is About to Start Are you ready?"
-                who.innerText=player_symbol;
                 startAutoClose()
             }else if (data.status === "disconnected"){
                 console.log("Player is")
@@ -346,15 +350,27 @@
                 // setTimeout(() => {
                 //     alert("Congratulations " + data.win);  // Show the win message after 2 seconds
                 // }, 100);
-                status_message.innerText="Game Ended!";
-                genral_message.innerText = data.win + "The Game."
+                status_message.innerText=data.win + "The Game.";
+                genral_message.innerText = "Want to Play Again?"
+                const newButton = document.createElement('button');
+                newButton.textContent = 'Yes'; // Button text
+                newButton.id = 'yesbtn';
+                newButton.className = 'btn';
+                document.getElementsByClassName('modal-body')[0].appendChild(newButton)
+                
                 active_modal();
                 cancelAutoClose();
             }
             else if(data.draw !== false && data.draw !== undefined) {
-                setTimeout(() => {
-                    alert("It's a draw");  // Show the draw message after 2 seconds
-                }, 100);
+                status_message.innerText="Game Is Draw!";
+                genral_message.innerText = "Want to Play Again?"
+                const newButton = document.createElement('button');
+                newButton.textContent = 'Yes'; // Button text
+                newButton.id = 'yesbtn';
+                newButton.className = 'btn';
+                document.getElementsByClassName('modal-body')[0].appendChild(newButton)
+                active_modal();
+                cancelAutoClose();
             }
             if (data.id !== undefined) {
                 console.log(data.turn);
@@ -397,6 +413,7 @@
         }
 
         active_modal()
+        
         // modalOverlay.addEventListener('mousemove', cancelAutoClose);
         // modalOverlay.addEventListener('touchstart', cancelAutoClose);
 
