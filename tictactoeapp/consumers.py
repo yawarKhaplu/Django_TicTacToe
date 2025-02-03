@@ -36,6 +36,9 @@ class MyConsumer(AsyncWebsocketConsumer):
             # print("Room Name: " , self.room_name)
             await self.channel_layer.group_add(self.room_name, self.channel_name)
             await self.accept()
+            await self.send(text_data=json.dumps({
+                "player_symbol": self.player_symbol
+            }))
             cache.delete("waiting_room")
             await self.channel_layer.group_send(
                 self.room_name,
@@ -64,6 +67,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             "message": f"Hi {self.player_symbol} Waiting for opponent...",
             "player_symbol": self.player_symbol
         }))
+        print(self.player_symbol, "joined the game") 
         # await self.game_start(self.room_name)
         # Accept the WebSocket connection
         # print(get_random_message())
@@ -96,14 +100,15 @@ class MyConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # Clean up if the player leaves before the game starts
+        print(self.player_symbol, "left the game")
         await self.channel_layer.group_send(
             self.room_name,
             {
                 "type": "game.start",
                 "status": "disconnected",
                 "message": f"{self.player_symbol} Left the Game!",
-                "player_symbol": "O",
-                "player_symbols": {"X": "Player 1", "O": "Player 2"}
+                "player_symbols": {"X": "Player 1", "O": "Player 2"},
+                "player_symbol": self.player_symbol
             }
         )
         if cache.get("waiting_room") == self.room_name:
@@ -134,7 +139,7 @@ class MyConsumer(AsyncWebsocketConsumer):
                     'id': which_box,
                     'win': win,
                     'draw': draw,
-                    "player": self.player_symbol,
+                    "player_symbol": self.player_symbol,
                 }
             )
             
@@ -149,6 +154,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "status": event["status"],
             "turn": self.turn,
+            "player_symbol": event["player_symbol"],
             "message": event["message"],
             "player_symbols": event["player_symbols"]
         }))
@@ -163,7 +169,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             'id': event['id'],
             'draw': event['draw'],
             'win': event['win'],
-            "player": event['player'],
+            "player_symbol": event['player_symbol'],
         }))
     async def clear_all_boxvalues(self):
         await self.channel_layer.group_send(

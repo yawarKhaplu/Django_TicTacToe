@@ -269,7 +269,8 @@
             </div>
         </div>
 
-        <button onclick="gameOver()">Reset</button>
+        <!-- <button onclick="gameOver()">Reset</button> -->
+        <button id="who"></button>
     </div>
     <!-- <script src="app.js"></script> -->
     <script>
@@ -284,6 +285,7 @@
         let autoCloseTimeout;
         const status_message = document.getElementById("status-msg");
         const genral_message = document.getElementById("genral-message");
+        const who = document.getElementById("who");
         
 
         // mainBox.style.disabled = 'disabled';
@@ -313,10 +315,17 @@
             if(data.status === "waiting") {
                 console.log("waiting")
                 cancelAutoClose()
+                who.innerText = "O"
+                
+                who.innerText=player_symbol;
                 status_message.innerText = data.message;
             }else if(data.status === "started"){
+                if (who.innerText==="" || who.innerText === null){
+                    who.innerText = "X"
+                }
                 status_message.innerText=data.message;
                 genral_message.innerText = "Both Players are connected!\nGame is About to Start Are you ready?"
+                who.innerText=player_symbol;
                 startAutoClose()
             }else if (data.status === "disconnected"){
                 console.log("Player is")
