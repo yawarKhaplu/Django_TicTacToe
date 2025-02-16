@@ -11,6 +11,7 @@
             margin: 0;
             padding: 0;
         }
+
         body {
             font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
@@ -62,7 +63,7 @@
             cursor: pointer;
         }
 
-        
+
         .turn h2 {
             display: block;
             border: 2px double black;
@@ -124,6 +125,7 @@
             transition: all ease-in-out 300ms;
             opacity: 0.8;
         }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -145,6 +147,7 @@
             visibility: visible;
             z-index: 1;
         }
+
         .box:active {
             box-shadow: 2px 2px gray;
             transform: scale(1.09);
@@ -202,7 +205,7 @@
             .modal-content {
                 padding: 1.5rem;
             }
-            
+
             .modal-title {
                 font-size: 1.4rem;
             }
@@ -211,20 +214,32 @@
         /* Neomorphic effect */
         .modal-content {
             box-shadow: 20px 20px 60px #d1d1d1,
-                       -20px -20px 60px #ffffff;
+                -20px -20px 60px #ffffff;
         }
 
         /* Loading animation */
         @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+            0% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
         }
 
         .loading .modal-content {
             animation: pulse 1.5s infinite;
         }
-        #yesbtn{
+
+        #yesbtn {
             position: absolute;
             right: 45px;
             align-items: center;
@@ -292,7 +307,6 @@
         const status_message = document.getElementById("status-msg");
         const genral_message = document.getElementById("genral-message");
         const who = document.getElementById("who");
-        
 
         // mainBox.style.disabled = 'disabled';
         // reset function
@@ -307,9 +321,9 @@
         buttons = document.querySelectorAll('.box')
         buttons.forEach(function (button, index) {
             button.addEventListener('click', function () {
-                clicked_btn  = button.getAttribute('id') 
+                clicked_btn = button.getAttribute('id')
                 clicked_btn.disabled = 'disabled';
-                console.log(JSON.stringify({ clicked: clicked_btn}));
+                console.log(JSON.stringify({ clicked: clicked_btn }));
                 socket.send(JSON.stringify({ clicked: clicked_btn }));
             });
         });
@@ -318,27 +332,27 @@
             const data = JSON.parse(event.data);
             console.log(data);
             turn_msg.innerText = data.turn;
-            if(data.status === "waiting") {
+            if (data.status === "waiting") {
                 console.log("waiting")
                 cancelAutoClose()
                 who.innerText = "O"
-                
+
                 status_message.innerText = data.message;
-            }else if(data.status === "started"){
-                if (who.innerText==="" || who.innerText === null){
+            } else if (data.status === "started") {
+                if (who.innerText === "" || who.innerText === null) {
                     who.innerText = "X"
                 }
-                status_message.innerText=data.message;
+                status_message.innerText = data.message;
                 genral_message.innerText = "Both Players are connected!\nGame is About to Start Are you ready?"
                 startAutoClose()
-            }else if (data.status === "disconnected"){
+            } else if (data.status === "disconnected") {
                 console.log("Player is")
                 status_message.innerText = "Game Ended!";
                 genral_message.innerText = data.message;
                 active_modal();
                 cancelAutoClose();
             }
-            if( data.player == 'Spectrator'){
+            if (data.player == 'Spectrator') {
                 turn_msg.innerText = 'Spectator';
                 mainBox.style.disabled = 'disabled';
                 // buttons.forEach(function (button) {
@@ -350,19 +364,26 @@
                 // setTimeout(() => {
                 //     alert("Congratulations " + data.win);  // Show the win message after 2 seconds
                 // }, 100);
-                status_message.innerText=data.win + "The Game.";
+                status_message.innerText = data.win + "The Game.";
                 genral_message.innerText = "Want to Play Again?"
                 const newButton = document.createElement('button');
                 newButton.textContent = 'Yes'; // Button text
                 newButton.id = 'yesbtn';
                 newButton.className = 'btn';
                 document.getElementsByClassName('modal-body')[0].appendChild(newButton)
-                
+
+                // Add funtionality when yes button clicked
+                document.getElementById('yesbtn').addEventListener('click', function () {
+                    closeModal();
+                    socket.send(JSON.stringify({ btn: "playagin" }));
+                    // reset();
+                });
+
                 active_modal();
                 cancelAutoClose();
             }
-            else if(data.draw !== false && data.draw !== undefined) {
-                status_message.innerText="Game Is Draw!";
+            else if (data.draw !== false && data.draw !== undefined) {
+                status_message.innerText = "Game Is Draw!";
                 genral_message.innerText = "Want to Play Again?"
                 const newButton = document.createElement('button');
                 newButton.textContent = 'Yes'; // Button text
@@ -384,9 +405,8 @@
             }
         };
 
-
-         // Close modal
-         function closeModal() {
+        // Close modal
+        function closeModal() {
             modalOverlay.classList.remove('active');
             document.body.style.overflow = 'auto';
             cancelAutoClose();
@@ -400,10 +420,11 @@
 
         // Activate the modal-popup 
         function active_modal() {
-        modalOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        startAutoClose();
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            startAutoClose();
         }
+
         function startAutoClose() {
             autoCloseTimeout = setTimeout(closeModal, 5000);
         }
@@ -413,7 +434,7 @@
         }
 
         active_modal()
-        
+
         // modalOverlay.addEventListener('mousemove', cancelAutoClose);
         // modalOverlay.addEventListener('touchstart', cancelAutoClose);
 

@@ -146,6 +146,12 @@ class MyConsumer(AsyncWebsocketConsumer):
         else:
             print("Unknown message")
             print(data)
+        
+        if 'btn' in data:
+            if data['btn'] == 'playagin':
+                new_game()
+                await self.clear_all_boxvalues()
+                
     async def game_start(self, event):
         # Send game start message to both players
         await self.send(text_data=json.dumps({
@@ -173,6 +179,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             self.room_name,{
             'clear': True,
             "turn": self.turn,
+
         })
     async def wait_for_one_to_play(self):
         pass
